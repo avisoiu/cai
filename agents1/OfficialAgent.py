@@ -115,11 +115,11 @@ class BaselineAgent(ArtificialBrain):
         return victim in self._collected_victims and victim not in self._victims_punished_for
 
     def get_willingness(self):
-        return 1
+        return random.uniform(-1, 1)
         #return self._trustBeliefs[self._human_name]['willingness']
 
     def get_competence(self):
-        return 1
+        return random.uniform(-1, 1)
         #return self._trustBeliefs[self._human_name]['competence']
 
     def start_waiting(self):
@@ -147,7 +147,7 @@ class BaselineAgent(ArtificialBrain):
 
     # Change the competence and willingness by a certain modifier
     def alter_belief(self, belief, modifier):
-        # FULL_TRUST
+        # RANDOM_TRUST
         return
         #
         '''if belief != 'competence' and belief != 'willingness':
