@@ -115,17 +115,19 @@ class BaselineAgent(ArtificialBrain):
         return victim in self._collected_victims and victim not in self._victims_punished_for
 
     def get_willingness(self):
-        return self._trustBeliefs[self._human_name]['willingness']
+        return -1
+        #return self._trustBeliefs[self._human_name]['willingness']
 
     def get_competence(self):
-        return self._trustBeliefs[self._human_name]['competence']
+        return -1
+        #return self._trustBeliefs[self._human_name]['competence']
 
     def start_waiting(self):
         self._waiting = True
         self._waiting_ticks = 0
 
     def seconds_to_ticks(self, seconds):
-        return seconds * 10;
+        return seconds * 10
 
     def punish_lying_room(self, room_name, modifier=-0.1):
         if room_name in self._rooms_punished_for:
@@ -145,13 +147,16 @@ class BaselineAgent(ArtificialBrain):
 
     # Change the competence and willingness by a certain modifier
     def alter_belief(self, belief, modifier):
-        if belief != 'competence' and belief != 'willingness':
+        # NO_TRUST
+        return
+        #
+        '''if belief != 'competence' and belief != 'willingness':
             print("Wrong alter_belief call.")
             return
         self._trustBeliefs[self._human_name][belief] += modifier
         # Restrict the competence belief to a range of -1 to 1
         self._trustBeliefs[self._human_name][belief] = np.clip(self._trustBeliefs[self._human_name][belief], -1, 1)
-        print( str(self.get_willingness()) + '- willingness  ' + str(self.get_competence()) + '- competence')
+        print( str(self.get_willingness()) + '- willingness  ' + str(self.get_competence()) + '- competence')'''
 
     def decide_on_actions(self, state):
         # Identify team members
@@ -1041,7 +1046,7 @@ class BaselineAgent(ArtificialBrain):
                     # if the willingness goes below -0.5, the human is likely lying
                     # -> disregard all their searched rooms.
                     # even if not, 1 in 10 chance to ignore the room as a sanity check
-                    if ((self._trustBeliefs[self._human_name]['willingness'] > 0 or random.random() > 0.1)
+                    if ((self.get_willingness() > 0 or random.random() > 0.1)
                             and area not in self._searched_rooms):
                         self._searched_rooms.append(area)
                     elif area not in self._searched_by_human:
