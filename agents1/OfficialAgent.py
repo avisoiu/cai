@@ -1101,33 +1101,34 @@ class BaselineAgent(ArtificialBrain):
                 # If a received message involves team members asking for help with removing obstacles, add their location to memory and come over
                 if msg.startswith('Remove:'):
                     self._is_checking_obstacle = True
+                    if self.get_willingness() > -0.5:
                     # Come over immediately when the agent is not carrying a victim
-                    if not self._carrying and self.get_willingness() > -0.5:
-                        # Identify at which location the human needs help
-                        area = 'area ' + msg.split()[-1]
-                        self._door = state.get_room_doors(area)[0]
-                        self._doormat = state.get_room(area)[-1]['doormat']
-                        if area in self._searched_rooms:
-                            self._searched_rooms.remove(area)
-                        # Clear received messages (bug fix)
-                        self.received_messages = []
-                        self.received_messages_content = []
-                        self._moving = True
-                        self._remove = True
-                        if self._waiting and self._recent_vic:
-                            self._todo.append(self._recent_vic)
-                        self._waiting = False
-                        # Let the human know that the agent is coming over to help
-                        self._send_message(
-                            'Moving to ' + str(self._door['room_name']) + ' to help you remove an obstacle.',
-                            'RescueBot')
-                        # Plan the path to the relevant area
-                        self._phase = Phase.PLAN_PATH_TO_ROOM
-                    # Come over to help after dropping a victim that is currently being carried by the agent
-                    elif self._carrying:
-                        area = 'area ' + msg.split()[-1]
-                        self._send_message('Will come to ' + area + ' after dropping ' + self._goal_vic + '.',
-                                          'RescueBot')
+                        if not self._carrying:
+                            # Identify at which location the human needs help
+                            area = 'area ' + msg.split()[-1]
+                            self._door = state.get_room_doors(area)[0]
+                            self._doormat = state.get_room(area)[-1]['doormat']
+                            if area in self._searched_rooms:
+                                self._searched_rooms.remove(area)
+                            # Clear received messages (bug fix)
+                            self.received_messages = []
+                            self.received_messages_content = []
+                            self._moving = True
+                            self._remove = True
+                            if self._waiting and self._recent_vic:
+                                self._todo.append(self._recent_vic)
+                            self._waiting = False
+                            # Let the human know that the agent is coming over to help
+                            self._send_message(
+                                'Moving to ' + str(self._door['room_name']) + ' to help you remove an obstacle.',
+                                'RescueBot')
+                            # Plan the path to the relevant area
+                            self._phase = Phase.PLAN_PATH_TO_ROOM
+                        # Come over to help after dropping a victim that is currently being carried by the agent
+                        elif self._carrying:
+                            area = 'area ' + msg.split()[-1]
+                            self._send_message('Will come to ' + area + ' after dropping ' + self._goal_vic + '.',
+                                              'RescueBot')
                     elif self.get_willingness() < -0.5:
                         area = 'area ' + msg.split()[-1]
                         self._send_message('Will not come to ' + area + '. I do not trust you.', 'RescueBot')
