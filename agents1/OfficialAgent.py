@@ -173,8 +173,9 @@ class BaselineAgent(ArtificialBrain):
         # Restrict the competence belief to a range of -1 to 1
         self._trustBeliefs[self._human_name][belief] = np.clip(self._trustBeliefs[self._human_name][belief], -1, 1)
         print( str(self.get_willingness()) + '- willingness  ' + str(self.get_competence()) + '- competence')
-        with open('trust_logs.txt', 'w') as file:
-            file.write('trust: ' + str(self.get_trust()) + '; competence: ' + str(self.get_competence()) + '; willingness: ' + str(self.get_willingness()) + '; score: ' +  str(state['rescuebot']['score']) + '\n')
+        with open('trust_logs.csv', mode='a+') as file:
+            csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow([self.get_trust(), self.get_competence(), self.get_willingness(), self.get_competence(), state['rescuebot']['score']])
 
     # when we trusted and we shouldn't have -> alter_gains_or_loses(self.is_trusted())
     # when we trusted and we should have -> alter_gains_or_loses(not self.is_trusted())
@@ -1208,6 +1209,11 @@ class BaselineAgent(ArtificialBrain):
         default = 0.5
         trustfile_header = []
         trustfile_contents = []
+        # reset the trust_logs file
+        with open('trust_logs.csv', 'w') as file:
+            writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(["trust","competence","willingness","confidence","score"])
+
         # Check if agent already collaborated with this human before, if yes: load the corresponding trust values, if no: initialize using default trust values
         with open(folder + '/beliefs/allTrustBeliefs.csv') as csvfile:
             reader = csv.reader(csvfile, delimiter=';', quotechar="'")
