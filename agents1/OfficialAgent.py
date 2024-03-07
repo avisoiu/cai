@@ -140,8 +140,8 @@ class BaselineAgent(ArtificialBrain):
             return False
         # if we are in the ignorance case, we have a 50-50 chance of trusting the human.
         return random.uniform(0, 1) <= 0.5'''
-        # ALWAYS TRUST!
-        return True
+        # RANDOMLY TRUST!
+        return random.uniform(0, 1) <= 0.5
 
 
     def start_waiting(self):
