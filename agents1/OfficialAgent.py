@@ -109,15 +109,15 @@ class BaselineAgent(ArtificialBrain):
         return victim in self._collected_victims and victim not in self._victims_punished_for
 
     def get_willingness(self):
-        return -1
+        return 1
         #return self._trustBeliefs[self._human_name]['willingness']
 
     def get_competence(self):
-        return -1
+        return 1
         #return self._trustBeliefs[self._human_name]['competence']
 
     def get_trust(self):
-        return 0
+        return 1
         #return 0.2 * self.get_competence() + 0.8 * self.get_willingness()
 
     def get_confidence(self):
@@ -140,8 +140,8 @@ class BaselineAgent(ArtificialBrain):
             return False
         # if we are in the ignorance case, we have a 50-50 chance of trusting the human.
         return random.uniform(0, 1) <= 0.5'''
-        # NEVER TRUST!
-        return False
+        # ALWAYS TRUST!
+        return True
 
 
     def start_waiting(self):
