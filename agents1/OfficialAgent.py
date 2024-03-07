@@ -109,20 +109,25 @@ class BaselineAgent(ArtificialBrain):
         return victim in self._collected_victims and victim not in self._victims_punished_for
 
     def get_willingness(self):
-        return self._trustBeliefs[self._human_name]['willingness']
+        return -1
+        #return self._trustBeliefs[self._human_name]['willingness']
 
     def get_competence(self):
-        return self._trustBeliefs[self._human_name]['competence']
+        return -1
+        #return self._trustBeliefs[self._human_name]['competence']
 
     def get_trust(self):
-        return 0.2 * self.get_competence() + 0.8 * self.get_willingness()
+        return 0
+        #return 0.2 * self.get_competence() + 0.8 * self.get_willingness()
 
     def get_confidence(self):
-        if self._gains == 0 and self._losses == 0: return 0
-        return self._gains / (self._gains + self._losses)
+        '''if self._gains == 0 and self._losses == 0: return 0
+        return self._gains / (self._gains + self._losses)'''
+        # no trust
+        return 1
 
     def is_trusted(self):
-        p = (self.get_trust() + 1)/2
+        '''p = (self.get_trust() + 1)/2
         pTimesG = p * self._gains
         pTimesL = (1 - p) * self._losses
         # trust
@@ -134,7 +139,9 @@ class BaselineAgent(ArtificialBrain):
             # distrust the human
             return False
         # if we are in the ignorance case, we have a 50-50 chance of trusting the human.
-        return random.uniform(0, 1) <= 0.5
+        return random.uniform(0, 1) <= 0.5'''
+        # NEVER TRUST!
+        return False
 
 
     def start_waiting(self):
@@ -598,17 +605,18 @@ class BaselineAgent(ArtificialBrain):
 
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'stone' in \
                             info['obj_id']:
-                        # If the human asked the robot to remove the stone, we decrease the competence,
-                        # as it might indicate that the human is weak
-                        if self._is_checking_obstacle:
-                            self.alter_belief("competence", -0.3, state)
-                            self._is_checking_obstacle = False
-                        objects.append(info)
-                        # If the human told the robot that they searched the room, but did not,
-                        # we decrease the competence and willingness
-                        if self.room_searched_by_human(self._door['room_name']) and self._distance_human == 'far':
-                            self.punish_lying_room(self._door['room_name'], state)
-                            self.alter_belief('competence', -0.2, state)
+                        if not self._waiting:
+                            # If the human asked the robot to remove the stone, we decrease the competence,
+                            # as it might indicate that the human is weak
+                            if self._is_checking_obstacle:
+                                self.alter_belief("competence", -0.3, state)
+                                self._is_checking_obstacle = False
+                            objects.append(info)
+                            # If the human told the robot that they searched the room, but did not,
+                            # we decrease the competence and willingness
+                            if self.room_searched_by_human(self._door['room_name']) and self._distance_human == 'far':
+                                self.punish_lying_room(self._door['room_name'], state)
+                                self.alter_belief('competence', -0.2, state)
                         # Communicate which obstacle is blocking the entrance
                         if self._answered == False and not self._remove and not self._waiting:
                             if not self.is_trusted:
@@ -1288,8 +1296,7 @@ class BaselineAgent(ArtificialBrain):
         with open(folder + '/beliefs/currentTrustBelief.csv', mode='w') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow(['name', 'competence', 'willingness', 'confidence'])
-            csv_writer.writerow([self._human_name, self._trustBeliefs[self._human_name]['competence'],
-                                 self._trustBeliefs[self._human_name]['willingness'], self.get_confidence()])
+            csv_writer.writerow([self._human_name, self.get_competence(), self.get_willingness(), self.get_confidence()])
 
     def _send_message(self, mssg, sender):
         '''
