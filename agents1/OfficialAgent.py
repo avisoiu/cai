@@ -1182,12 +1182,14 @@ class BaselineAgent(ArtificialBrain):
                     name = row[0]
                     competence = float(row[1])
                     willingness = float(row[2])
-                    trustBeliefs[name] = {'competence': competence, 'willingness': willingness}
+                    confidence = float(row[3])
+                    trustBeliefs[name] = {'competence': competence, 'willingness': willingness, 'confidence': confidence}
                 # Initialize default trust values
                 if row and row[0] != self._human_name:
                     competence = default
                     willingness = default
-                    trustBeliefs[self._human_name] = {'competence': competence, 'willingness': willingness}
+                    confidence = 0
+                    trustBeliefs[self._human_name] = {'competence': competence, 'willingness': willingness, 'confidence': confidence}
         return trustBeliefs
 
     def _trustBelief(self, members, folder, receivedMessages, state):
