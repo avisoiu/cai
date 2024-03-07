@@ -94,9 +94,9 @@ class BaselineAgent(ArtificialBrain):
     # Determine time to wait for human response based on their willingness
     def determine_time_to_wait(self):
         if self.is_trusted():
-            return 25
+            return 30
         else:
-            return 15
+            return 20
 
     def filter_observations(self, state):
         # Filtering of the world state before deciding on an action
@@ -523,7 +523,7 @@ class BaselineAgent(ArtificialBrain):
                         # Remain idle until the human communicates what to do with the identified obstacle
                         else:
                             time_to_wait = self.determine_time_to_wait()
-                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(20) and self._answered):
+                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(25) and self._answered):
                                 if self._answered:
                                     self._send_message('Continued searching as you did not come.', 'RescueBot')
                                 else:
@@ -580,7 +580,7 @@ class BaselineAgent(ArtificialBrain):
                         # Remain idle until the human communicates what to do with the identified obstacle
                         else:
                             time_to_wait = self.determine_time_to_wait()
-                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(20) and self._answered):
+                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(25) and self._answered):
                                 self._answered = True
                                 self._waiting = False
                                 reason = "you did not answer." if not self._answered else "you did not come."
@@ -680,7 +680,7 @@ class BaselineAgent(ArtificialBrain):
                         # Remain idle until the human communicates what to do with the identified obstacle
                         else:
                             time_to_wait = self.determine_time_to_wait()
-                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(20) and self._answered):
+                            if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (self._waiting_ticks > self.seconds_to_ticks(25) and self._answered):
                                 self._answered = True
                                 self._waiting = False
                                 reason = "you did not answer." if not self._answered else "you did not come."
@@ -913,7 +913,7 @@ class BaselineAgent(ArtificialBrain):
                 if self.received_messages_content and self._waiting and self.received_messages_content[-1] != 'Continue':
                     time_to_wait = self.determine_time_to_wait()
                     if (self._waiting_ticks > self.seconds_to_ticks(time_to_wait) and not self._answered) or (
-                            self._waiting_ticks > self.seconds_to_ticks(20) and self._answered):
+                            self._waiting_ticks > self.seconds_to_ticks(25) and self._answered):
                         self.alter_gains_or_losses(self.is_trusted())
                         if 'mild' in self._recent_vic:
                             reason = "you did not answer." if not self._answered else "you did not come."
@@ -1003,7 +1003,7 @@ class BaselineAgent(ArtificialBrain):
                                 self._moving = False
                                 return None, {}
                             else:
-                                if self._waiting_ticks >= self.seconds_to_ticks(20):
+                                if self._waiting_ticks >= self.seconds_to_ticks(25):
                                     self.alter_gains_or_losses(self.is_trusted())
                                     if len(objects) == 0 and 'critical' in self._goal_vic:
                                         self._phase = Phase.FIND_NEXT_GOAL
