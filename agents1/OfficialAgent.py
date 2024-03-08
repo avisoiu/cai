@@ -598,17 +598,18 @@ class BaselineAgent(ArtificialBrain):
 
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'stone' in \
                             info['obj_id']:
-                        # If the human asked the robot to remove the stone, we decrease the competence,
-                        # as it might indicate that the human is weak
-                        if self._is_checking_obstacle:
-                            self.alter_belief("competence", -0.3, state)
-                            self._is_checking_obstacle = False
-                        objects.append(info)
-                        # If the human told the robot that they searched the room, but did not,
-                        # we decrease the competence and willingness
-                        if self.room_searched_by_human(self._door['room_name']) and self._distance_human == 'far':
-                            self.punish_lying_room(self._door['room_name'], state)
-                            self.alter_belief('competence', -0.2, state)
+                        if not self._waiting:
+                            # If the human asked the robot to remove the stone, we decrease the competence,
+                            # as it might indicate that the human is weak
+                            if self._is_checking_obstacle:
+                                self.alter_belief("competence", -0.3, state)
+                                self._is_checking_obstacle = False
+                            objects.append(info)
+                            # If the human told the robot that they searched the room, but did not,
+                            # we decrease the competence and willingness
+                            if self.room_searched_by_human(self._door['room_name']) and self._distance_human == 'far':
+                                self.punish_lying_room(self._door['room_name'], state)
+                                self.alter_belief('competence', -0.2, state)
                         # Communicate which obstacle is blocking the entrance
                         if self._answered == False and not self._remove and not self._waiting:
                             if not self.is_trusted:
