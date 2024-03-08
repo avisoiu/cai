@@ -152,7 +152,7 @@ class BaselineAgent(ArtificialBrain):
     def seconds_to_ticks(self, seconds):
         return seconds * 10;
 
-    def punish_lying_room(self, room_name, state, modifier=-0.1):
+    def punish_lying_room(self, room_name, state, modifier=-0.15):
         if room_name in self._rooms_punished_for:
             return
         self._searched_by_human.remove(room_name)
@@ -161,7 +161,7 @@ class BaselineAgent(ArtificialBrain):
         self._losses += 1
         print("Punishing human for lying about searching in a room: victim/obstacle.")
 
-    def punish_lying_victim(self, victim,  state, belief='willingness', modifier=-0.1):
+    def punish_lying_victim(self, victim,  state, belief='willingness', modifier=-0.2):
         if victim in self._victims_punished_for:
             return
 
@@ -776,7 +776,7 @@ class BaselineAgent(ArtificialBrain):
                                 # when the human only declared that they found the victim
                                 # We also decrease the willingness
                                 self.punish_lying_victim(self, state, 'competence', -0.5)
-                                self.alter_belief(self, 'willingness', -0.1, state)
+                                self.alter_belief(self, 'willingness', -0.2, state)
                             if vic not in self._room_vics:
                                 self._room_vics.append(vic)
 
@@ -794,7 +794,7 @@ class BaselineAgent(ArtificialBrain):
                                                       'RescueBot')
                                     # If the robot found a victim based on the message received by the human,
                                     # the willingness is increased
-                                    self.alter_belief("willingness", 0.25, state)
+                                    self.alter_belief("willingness", 0.15, state)
                                     # Add the area to the list with searched areas
                                     if self._door['room_name'] not in self._searched_rooms:
                                         self._searched_rooms.append(self._door['room_name'])
