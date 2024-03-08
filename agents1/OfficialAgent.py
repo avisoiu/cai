@@ -145,7 +145,7 @@ class BaselineAgent(ArtificialBrain):
     def seconds_to_ticks(self, seconds):
         return seconds * 10;
 
-    def punish_lying_room(self, room_name, state, modifier=-0.1):
+    def punish_lying_room(self, room_name, state, modifier=-0.15):
         if room_name in self._rooms_punished_for:
             return
         self._searched_by_human.remove(room_name)
@@ -154,7 +154,7 @@ class BaselineAgent(ArtificialBrain):
         self._losses += 1
         print("Punishing human for lying about searching in a room: victim/obstacle.")
 
-    def punish_lying_victim(self, victim,  state, belief='willingness', modifier=-0.1):
+    def punish_lying_victim(self, victim,  state, belief='willingness', modifier=-0.2):
         if victim in self._victims_punished_for:
             return
 
@@ -505,7 +505,6 @@ class BaselineAgent(ArtificialBrain):
                             -1] == 'Remove' or self._remove:
                             # If the human communicated with me to remove the obstacle,
                             # we increase the willingness according to the distance between them and the human
-                            self.alter_gains_or_losses(not self.is_trusted())
                             if self._distance_human == 'far':
                                 self.alter_belief("willingness", 0.05, state)
                             else:
@@ -563,20 +562,17 @@ class BaselineAgent(ArtificialBrain):
                             self._answered = True
                             self._waiting = False
                             # Add area to the to do list
-                            self.alter_gains_or_losses(self.is_trusted())
                             self._to_search.append(self._door['room_name'])
                             self._phase = Phase.FIND_NEXT_GOAL
                         # Remove the obstacle if the human tells the agent to do so
                         if self.received_messages_content and self.received_messages_content[
                             -1] == 'Remove' or self._remove:
                             if not self._remove:
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self._answered = True
                                 self._waiting = False
                                 self._send_message('Removing tree blocking ' + str(self._door['room_name']) + '.',
                                                   'RescueBot')
                             if self._remove:
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self._send_message('Removing tree blocking ' + str(
                                     self._door['room_name']) + ' because you asked me to.', 'RescueBot')
                             self._phase = Phase.ENTER_ROOM
@@ -608,7 +604,6 @@ class BaselineAgent(ArtificialBrain):
                             # as it might indicate that the human is weak
                             if self._is_checking_obstacle:
                                 self.alter_belief("competence", -0.3, state)
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self._is_checking_obstacle = False
                             objects.append(info)
                             # If the human told the robot that they searched the room, but did not,
@@ -621,7 +616,6 @@ class BaselineAgent(ArtificialBrain):
                             if not self.is_trusted:
                                 self._answered = True
                                 self._waiting = False
-                                self.alter_gains_or_losses(self.is_trusted())
                                 self._send_message('Removing stones blocking ' + str(self._door['room_name']) + ' alone. I do not trust you.',
                                                    'RescueBot')
                                 self._phase = Phase.ENTER_ROOM
@@ -638,7 +632,6 @@ class BaselineAgent(ArtificialBrain):
                         # Determine the next area to explore if the human tells the agent not to remove the obstacle
                         if self.received_messages_content and self.received_messages_content[
                             -1] == 'Continue' and not self._remove:
-                            self.alter_gains_or_losses(self.is_trusted())
                             self._answered = True
                             self._waiting = False
                             # Add area to the to do list
@@ -650,12 +643,10 @@ class BaselineAgent(ArtificialBrain):
                             # If the human communicated with the robot to remove the stone while the robot was not in their visual range,
                             # we increase their willingness, as the human will waste time by helping
                             if self._distance_human == 'far':
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self.alter_belief("willingness", 0.1, state)
                             else:
                                 # If the human communicated with the robot to remove the stone while the robot was in their visual range,
                                 # we decrease their willingness, as the human would improve efficiency
-                                self.alter_gains_or_losses(self.is_trusted())
                                 self.alter_belief("willingness", -0.05, state)
                             self.alter_gains_or_losses(not self.is_trusted())
                             self._answered = True
@@ -671,10 +662,8 @@ class BaselineAgent(ArtificialBrain):
                             # If the human decided to collaborate with robot on obstacle removal,
                             # the willingness is increased based on the distance between human and robot
                             if self._distance_human == 'far':
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self.alter_belief("willingness", 0.05, state)
                             else:
-                                self.alter_gains_or_losses(not self.is_trusted())
                                 self.alter_belief("willingness", 0.1, state)
                             if not self._remove:
                                 self._answered = True
@@ -780,7 +769,7 @@ class BaselineAgent(ArtificialBrain):
                                 # when the human only declared that they found the victim
                                 # We also decrease the willingness
                                 self.punish_lying_victim(self, state, 'competence', -0.5)
-                                self.alter_belief(self, 'willingness', -0.1, state)
+                                self.alter_belief(self, 'willingness', -0.2, state)
                             if vic not in self._room_vics:
                                 self._room_vics.append(vic)
 
@@ -798,8 +787,7 @@ class BaselineAgent(ArtificialBrain):
                                                       'RescueBot')
                                     # If the robot found a victim based on the message received by the human,
                                     # the willingness is increased
-                                    self.alter_gains_or_losses(not self.is_trusted())
-                                    self.alter_belief("willingness", 0.25, state)
+                                    self.alter_belief("willingness", 0.15, state)
                                     # Add the area to the list with searched areas
                                     if self._door['room_name'] not in self._searched_rooms:
                                         self._searched_rooms.append(self._door['room_name'])
@@ -849,7 +837,6 @@ class BaselineAgent(ArtificialBrain):
                     # If the robot was told by the human to search in a room, and it found nothing there,
                     # the willigneness of the human is decreased, as they lied
                     self.alter_belief('willingness', -0.25, state)
-                    self.alter_gains_or_losses(self.is_trusted())
                     # Remove the victim location from memory
                     self._found_victim_logs.pop(self._goal_vic, None)
                     self._found_victims.remove(self._goal_vic)
@@ -866,10 +853,8 @@ class BaselineAgent(ArtificialBrain):
                     # If the human communicated to the robot to rescue a victim, we increase their willingness for collaborating with the robot
                     # We also take into consideration the human-robot distance
                     if self._distance_human == 'far':
-                        self.alter_gains_or_losses(not self.is_trusted())
                         self.alter_belief("willingness", 0.05, state)
                     else:
-                        self.alter_gains_or_losses(not self.is_trusted())
                         self.alter_belief("willingness", 0.1, state)
                     self._rescue = 'together'
                     self._answered = True
@@ -890,12 +875,6 @@ class BaselineAgent(ArtificialBrain):
                 # Make a plan to rescue a found mildly injured victim together if the human decides so
                 if self.received_messages_content and self.received_messages_content[
                     -1] == 'Rescue together' and 'mild' in self._recent_vic:
-                    if self._distance_human == 'far':
-                        self.alter_gains_or_losses(not self.is_trusted())
-                        self.alter_belief("willingness", 0.05, state)
-                    else:
-                        self.alter_gains_or_losses(not self.is_trusted())
-                        self.alter_belief("willingness", 0.1, state)
                     self._rescue = 'together'
                     self._answered = True
                     self._waiting = False
@@ -917,12 +896,6 @@ class BaselineAgent(ArtificialBrain):
                     -1] == 'Rescue alone' and 'mild' in self._recent_vic:
                     self._send_message('Picking up ' + str(self._recent_vic) + ' in ' + self._door['room_name'] + '.',
                                       'RescueBot')
-                    if self._distance_human == 'far':
-                        self.alter_gains_or_losses(not self.is_trusted())
-                        self.alter_belief("willingness", 0.1, state)
-                    else:
-                        self.alter_gains_or_losses(self.is_trusted())
-                        self.alter_belief("willingness", -0.05, state)
                     self._rescue = 'alone'
                     self._answered = True
                     self._waiting = False
@@ -933,8 +906,6 @@ class BaselineAgent(ArtificialBrain):
                     self.alter_gains_or_losses(not self.is_trusted())
                 # Continue searching other areas if the human decides so
                 if self.received_messages_content and self.received_messages_content[-1] == 'Continue':
-                    self.alter_gains_or_losses(self.is_trusted())
-                    self.alter_belief("willingness", -0.1, state)
                     self._answered = True
                     self._waiting = False
                     self._todo.append(self._recent_vic)
@@ -1281,7 +1252,6 @@ class BaselineAgent(ArtificialBrain):
             # If the human told the robot to continue, we decrease their willingness
             if 'Continue' in message:
                 self.alter_belief('willingness', -0.1, state)
-                self.alter_gains_or_losses(self.is_trusted())
                 print("Detected a Continue - willingness -0.1")
             # If the human told the robot search in an already searched room, the willingness gets decreased
             if 'Search' in message:
@@ -1304,9 +1274,8 @@ class BaselineAgent(ArtificialBrain):
                 else:
                     # If the human picked up a victim but did not mark it as found first
                     # , we decrease the willingness and competence
-                    self.alter_belief('willingness', -0.05, state)
-                    self.alter_belief('competence', 0.3, state)
-                    print("Picked up a victim that was not marked as found -> willingness -0.1, competence +0.3")
+                    self.alter_belief('willingness', -0.1, state)
+                    print("Picked up a victim that was not marked as found -> willingness -0.1")
                     self.alter_gains_or_losses(self.is_trusted())
             if 'Remove:' in message:
                 room = 'area ' + message.split()[-1]
