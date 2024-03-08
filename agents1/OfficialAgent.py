@@ -182,7 +182,8 @@ class BaselineAgent(ArtificialBrain):
         print( str(self.get_willingness()) + '- willingness  ' + str(self.get_competence()) + '- competence')
         with open('trust_logs.csv', mode='a+') as file:
             csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            csv_writer.writerow([self.get_trust(), self.get_competence(), self.get_willingness(), self.get_competence(), state['rescuebot']['score']])
+            csv_writer.writerow([self.get_trust(), self._gains, self._losses, self.get_competence(),
+                                 self.get_willingness(), self.get_competence(), state['rescuebot']['score'], state['World']['nr_ticks']])
 
     # when we trusted and we shouldn't have -> alter_gains_or_loses(self.is_trusted())
     # when we trusted and we should have -> alter_gains_or_loses(not self.is_trusted())
@@ -1220,7 +1221,7 @@ class BaselineAgent(ArtificialBrain):
         # reset the trust_logs file
         with open('trust_logs.csv', 'w') as file:
             writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(["trust","competence","willingness","confidence","score"])
+            writer.writerow(["trust","gains", "loses", "competence","willingness","confidence","score", "tick"])
 
         # Check if agent already collaborated with this human before, if yes: load the corresponding trust values, if no: initialize using default trust values
         with open(folder + '/beliefs/allTrustBeliefs.csv') as csvfile:
